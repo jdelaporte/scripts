@@ -6,7 +6,7 @@
 #userdel 
 # -r removes home and mail spool
 names=( $(cat csit_inactive_unix.csv) )
-outfile=delete_users_output.txt
+outfile=deleted_users_output.txt
 year1=2016
 year2=2015
 tempuid=""
@@ -19,10 +19,10 @@ tempuid=$(getent passwd ${name} | cut -d : -f3)
 userhome=$(getent passwd ${name} | cut -d : -f6)
 if grep -q ${name} ${keepusers}
 then
-		echo "" >> $outfile
-		echo "user: $name" >> $outfile
+		echo "" | tee -a $outfile
+		echo "user: $name" | tee -a $outfile
 		echo "    UID: $tempuid" >> $outfile
-		echo "    result: ${name} is a staff user. Do NOT delete." | tee >> $outfile
+		echo "    result: ${name} is a staff user. Do NOT delete." | tee -a $outfile
 
 else
 	if [[ -z $tempuid ]]
@@ -30,23 +30,23 @@ else
  
 	elif [[ $tempuid -gt 1001 && $tempuid -le 2020 ]]
 	then
-		echo "" >> $outfile
-		echo "user: $name" >> $outfile
+		echo "" | tee -a $outfile
+		echo "user: $name" | tee -a $outfile
 		echo "    UID: $tempuid" >> $outfile
-		last ${name} | egrep "${year1}|${year2}"
+		last ${name} | egrep "${year1}|${year2}" >> /dev/null
 			if [[ $? -eq 0 ]]
 			then
-				echo "    result: Leaving user intact for now since login occurred in $year1 or $year2." | tee >> $outfile
+				echo "    result: Leaving user intact for now since login occurred in $year1 or $year2." | tee -a $outfile
 			else
 				echo 'echo "Your account is marked for deletion from shaula. Please contact the Tech Help Desk immediately if you believe this is an error."' >> ${userhome}/.bash_profile
 				echo 'echo "Your account is marked for deletion from shaula. Please contact the Tech Help Desk immediately if you believe this is an error."' >> ${userhome}/.profile
-				echo "    result: Removing ${name} user" | tee >> $outfile 
-#				userdel -r ${name} | tee >> $outfile
+				echo "    result: Removing ${name} user" | tee -a $outfile 
+#				userdel -r ${name} | tee -a $outfile
 			fi
 	else
-		echo "" >> $outfile
-		echo "user: $name" >> $outfile
-		echo "    result: ${name} is not in the desired user range" | tee >> $outfile
+		echo "" | tee -a $outfile
+		echo "user: $name" | tee -a $outfile
+		echo "    result: ${name} is not in the desired user range" | tee -a $outfile
 	fi
 fi
 done
